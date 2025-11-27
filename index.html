@@ -81,18 +81,23 @@
 <script>
 let questions = [];
 
+// Создание безопасного текстового узла
+function createTextElement(tag, text) {
+    const el = document.createElement(tag);
+    el.textContent = text;
+    return el;
+}
+
 // Добавить вопрос
 function addQuestion() {
-    let text = document.getElementById("inputQuestion").value.trim();
+    const text = document.getElementById("inputQuestion").value.trim();
     if (!text) return;
-
     questions.push({
         text,
         likes: 0,
         liked: false,
         answers: []
     });
-
     document.getElementById("inputQuestion").value = "";
     render();
 }
@@ -112,42 +117,71 @@ function showAnswerBox(i) {
 
 // Добавить ответ
 function addAnswer(i) {
-    let input = document.getElementById("answerInput" + i);
-    let text = input.value.trim();
+    const input = document.getElementById("answerInput" + i);
+    const text = input.value.trim();
     if (!text) return;
-
     questions[i].answers.push(text);
     input.value = "";
     render();
 }
 
+// Отрисовка
 function render() {
-    let box = document.getElementById("questions");
+    const box = document.getElementById("questions");
     box.innerHTML = "";
 
     questions.forEach((q, i) => {
-        let html = `
-            <div class="question">
-                <p><b>${q.text}</b></p>
-                <button class="small-btn" onclick="toggleLike(${i})">
-                    👍 ${q.likes}
-                </button>
-                <button class="small-btn" onclick="showAnswerBox(${i})">
-                    Ответить
-                </button>
+        const questionDiv = document.createElement("div");
+        questionDiv.className = "question";
 
-                <div id="answerBox${i}" style="display:none; margin-top:10px;">
-                    <input id="answerInput${i}" type="text" placeholder="Введите ответ..." style="padding:6px; width:70%;">
-                    <button class="small-btn" onclick="addAnswer(${i})">Отправить</button>
-                </div>
+        // Текст вопроса
+        const p = createTextElement("p", q.text);
+        questionDiv.appendChild(p);
 
-                <div class="answers">
-                    ${q.answers.map(a => `<p>– ${a}</p>`).join("")}
-                </div>
-            </div>
-        `;
+        // Кнопки
+        const likeBtn = document.createElement("button");
+        likeBtn.className = "small-btn";
+        likeBtn.textContent = `👍 ${q.likes}`;
+        likeBtn.onclick = () => toggleLike(i);
+        questionDiv.appendChild(likeBtn);
 
-        box.innerHTML += html;
+        const replyBtn = document.createElement("button");
+        replyBtn.className = "small-btn";
+        replyBtn.textContent = "Ответить";
+        replyBtn.onclick = () => showAnswerBox(i);
+        questionDiv.appendChild(replyBtn);
+
+        // Блок ввода ответа
+        const answerBox = document.createElement("div");
+        answerBox.id = "answerBox" + i;
+        answerBox.style.display = "none";
+        answerBox.style.marginTop = "10px";
+
+        const answerInput = document.createElement("input");
+        answerInput.id = "answerInput" + i;
+        answerInput.type = "text";
+        answerInput.placeholder = "Введите ответ...";
+        answerInput.style = "padding:6px; width:70%;";
+
+        const sendBtn = document.createElement("button");
+        sendBtn.className = "small-btn";
+        sendBtn.textContent = "Отправить";
+        sendBtn.onclick = () => addAnswer(i);
+
+        answerBox.appendChild(answerInput);
+        answerBox.appendChild(sendBtn);
+        questionDiv.appendChild(answerBox);
+
+        // Ответы
+        const answersDiv = document.createElement("div");
+        answersDiv.className = "answers";
+        q.answers.forEach(a => {
+            const ans = createTextElement("p", "– " + a);
+            answersDiv.appendChild(ans);
+        });
+        questionDiv.appendChild(answersDiv);
+
+        box.appendChild(questionDiv);
     });
 }
 </script>
