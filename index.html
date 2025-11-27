@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Band Vopros — Alpha</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f0f2f5;
+        margin: 0;
+        padding: 0;
+    }
+    header {
+        background: white;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        box-shadow: 0px 2px 6px rgba(0,0,0,0.15);
+    }
+    #logo {
+        width: 220px;
+    }
+    .container {
+        max-width: 800px;
+        margin: 30px auto;
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .question {
+        border-bottom: 1px solid #ddd;
+        padding: 10px 0;
+    }
+    .answers {
+        margin-left: 20px;
+        margin-top: 10px;
+        padding-left: 15px;
+        border-left: 2px solid #4a7cff;
+    }
+    button {
+        margin-top: 6px;
+        padding: 6px 14px;
+        border: none;
+        background: #4a7cff;
+        color: white;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+    button:hover {
+        background: #345fe0;
+    }
+    .small-btn {
+        padding: 4px 10px;
+        font-size: 12px;
+    }
+</style>
+</head>
+<body>
+
+<header>
+    <!-- Встроенный SVG логотип -->
+    <svg id="logo" viewBox="0 0 400 130">
+        <rect width="100%" height="100%" fill="#4a7cff"/>
+        <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle"
+              font-size="42" fill="white" font-weight="700">Band Vopros</text>
+        <text x="50%" y="80%" dominant-baseline="middle" text-anchor="middle"
+              font-size="22" fill="#dfe7ff">Alpha</text>
+    </svg>
+</header>
+
+<div class="container">
+    <h2>Задать вопрос</h2>
+    <input type="text" id="inputQuestion" placeholder="Введите вопрос..." style="width:80%; padding: 10px;">
+    <button onclick="addQuestion()">Отправить</button>
+
+    <h2 style="margin-top:30px;">Вопросы</h2>
+    <div id="questions"></div>
+</div>
+
+<script>
+let questions = [];
+
+// Добавить вопрос
+function addQuestion() {
+    let text = document.getElementById("inputQuestion").value.trim();
+    if (!text) return;
+
+    questions.push({
+        text,
+        likes: 0,
+        liked: false,
+        answers: []
+    });
+
+    document.getElementById("inputQuestion").value = "";
+    render();
+}
+
+// Лайк
+function toggleLike(i) {
+    questions[i].liked = !questions[i].liked;
+    questions[i].likes += questions[i].liked ? 1 : -1;
+    render();
+}
+
+// Показать поле ответа
+function showAnswerBox(i) {
+    const box = document.getElementById("answerBox" + i);
+    box.style.display = (box.style.display === "none") ? "block" : "none";
+}
+
+// Добавить ответ
+function addAnswer(i) {
+    let input = document.getElementById("answerInput" + i);
+    let text = input.value.trim();
+    if (!text) return;
+
+    questions[i].answers.push(text);
+    input.value = "";
+    render();
+}
+
+function render() {
+    let box = document.getElementById("questions");
+    box.innerHTML = "";
+
+    questions.forEach((q, i) => {
+        let html = `
+            <div class="question">
+                <p><b>${q.text}</b></p>
+                <button class="small-btn" onclick="toggleLike(${i})">
+                    👍 ${q.likes}
+                </button>
+                <button class="small-btn" onclick="showAnswerBox(${i})">
+                    Ответить
+                </button>
+
+                <div id="answerBox${i}" style="display:none; margin-top:10px;">
+                    <input id="answerInput${i}" type="text" placeholder="Введите ответ..." style="padding:6px; width:70%;">
+                    <button class="small-btn" onclick="addAnswer(${i})">Отправить</button>
+                </div>
+
+                <div class="answers">
+                    ${q.answers.map(a => `<p>– ${a}</p>`).join("")}
+                </div>
+            </div>
+        `;
+
+        box.innerHTML += html;
+    });
+}
+</script>
+
+</body>
+</html>
